@@ -1,11 +1,29 @@
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 
-.navbar .navbar-brand,
-.navbar .btn {
-  margin-left: 0.45rem;
+
+
+#carouselExampleCaptions img {
+  filter: brightness(45%);
+  min-width: fit-content;
 }
 
-#section-banners {
-  margin-top: 1rem;
+.about-content{
+  paddding-right: 100px
+}
 
+.project-content-pl {
+  padding-left: 100px
+}
+
+.project-content-pr {
+  padding-right: 100px
+}
+
+@media (max-width: 992px) {
+  .project-content-pl {
+    padding-left: 0px;
+  }
+  .project-content-pr {
+    padding-right: 0px;
+  }
 }
