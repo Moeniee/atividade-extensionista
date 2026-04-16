@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/cadastro.css">
+    <title>IBNOV - Cadastro</title>
+</head>
+<body>
+<section class="container">
+    <div class="box-top">
+        <img src="img/logo.jpeg" alt="Logo do IBNOV" width="150">
+        <h5>Cadastro de Usuário</h5>
+        <h6>Preencha os campos abaixo para criar sua conta</h6>
+    </div>
+    <hr>
+    <div class="bottom-box">
+    <form method="post" action="">
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="nome" class="control-label">Nome</label>
+            <input type="text" class="form-control" name="nome" placeholder="Digite o seu nome" required>
+           </div>
+           <div class="col-sm-6">
+            <label for="sobrenome" class="control-label">Sobrenome</label>
+            <input type="text" class="form-control" name="sobrenome" placeholder="Digite o seu sobrenome">
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="gender" class="control-label">Genero</label>
+            <label class="radio-inline">
+            <input type="radio" name="gender" value="M">Masculino
+            </label>
+            <label class="radio-inline">
+            <input type="radio" name="gender" value="F">Feminino
+            </label>
+           </div>
+           <div class="col-sm-6">
+            <label for="dataNasc" class="control-label">Data de Nascimento</label>
+            <input type="date" class="form-control" name="dataNasc" placeholder="Digite a sua data de nascimento">
+           </div> 
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="telefone" class="control-label">Telefone</label>
+            <input type="text" class="form-control" name="telefone" placeholder="Digite o seu telefone" required>
+            <small>Nota: Digite o número completo, incluindo o DDD</small>
+           </div>
+           <div class="col-sm-6">
+            <label for="email" class="control-label">Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Digite o seu email" required>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="cpf" class="control-label">CPF</label>
+            <input type="text" class="form-control" name="cpf" placeholder="Digite o seu CPF" required>
+           </div>
+           <div class="col-sm-6">
+            <label for="numero" class="control-label">Número</label>
+            <input type="text" class="form-control" name="numero" placeholder="Digite o número do endereço">
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="cep" class="control-label">CEP</label>
+            <input type="text" class="form-control" name="cep" placeholder="Digite o seu CEP" required>
+           </div>
+           <div class="col-sm-6">
+            <label for="endereco" class="control-label">Endereço</label>
+            <input type="text" class="form-control" name="endereco" placeholder="Digite o seu endereço">
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="username" class="control-label">Nome de Usuário</label>
+            <input type="text" class="form-control" name="username" placeholder="Digite o seu nome de usuário" required>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="password" class="control-label">Senha</label>
+            <input type="password" class="form-control" name="password" placeholder="Digite a sua senha" required>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="verificar" class="control-label">Verificar Senha</label>
+            <input type="password" class="form-control" name="verificar" placeholder="Digite a sua senha novamente" required>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label class="control-label">Notificações</label>
+            <div>
+                <label><input type="radio" name="notificacoes" value="sim"> Sim</label>
+                <label><input type="radio" name="notificacoes" value="nao"> Não</label>
+            </div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <button type="submit" class="btn btn-primary">Cadastrar</button>
+            </div>
+        </div>
+    </form>
+    </div>
+
+    <hr>
+    <div class="row justify-content-center">
+        <div class="row-botton">
+            <div class="col float-start">
+                <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+            </div>
+            <div class="col float-end">
+                <a href="index.html">Voltar para a página inicial</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="js/javascript.js"></script>    
+</body>
+</html>

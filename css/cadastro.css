@@ -1,0 +1,53 @@
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        display: flex;
+        background-attachment: fixed;
+        justify-content: center;
+        color: black;
+    }
+
+    input[type=text], input[type=telefone], input[type=email], input[type=password], input[type=date]{
+        background-color: white;
+        border-color: grey;
+        padding: 12px 12px 12px 12px;
+        border-radius: 25px;
+        font-size: 18px;
+    }
+    body label{
+        font-weight: 600;
+        padding-left: 18px;
+    }
+    .container{
+        padding: 20px 20px 20px 20px;
+    }
+    .btn{
+        padding: 12px 60px 12px 60px;
+        border-radius: 25px;
+        border: none;
+    }
+    .col-sm-6{
+        padding-bottom: 20px;
+    }
+    .box-top{
+        text-align: center;
+
+    }
+    small{
+     padding-left: 20px;
+    }
+    .row-botton .col{
+        display: inline-block;
+        margin: 0;
+        padding: 0 10px 0 10px;
+    }
+    body a, body p{
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .img-logo{
+        width: 200px;
+        margin-bottom: 15px;
+    }
