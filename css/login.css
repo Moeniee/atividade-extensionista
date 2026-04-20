@@ -34,6 +34,11 @@
   body label{
     padding-left: 18px;
   }
+
+  button[disabled]{
+    opacity: 0.7;
+  }
+  
   p{
     color: gray;
   }
@@ -43,7 +48,7 @@
     border: none !important;
     border-radius: 23px !important;
   }
-  input[type=text], input[type=password]{
+  input[type=email], input[type=password]{
     border-radius: 25px;
     font-size: 18px;
     border: none !important;
@@ -82,4 +87,11 @@
     color: white;
     text-align: center;
     font-size: 13px;
+  }
+
+  .error{
+    color: red;
+    font-size: 14px;
+    display: none;
+    margin-top: 5px;
   }
