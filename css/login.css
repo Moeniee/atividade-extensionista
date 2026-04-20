@@ -95,3 +95,7 @@
     display: none;
     margin-top: 5px;
   }
+
+  #recover-password-button {
+    cursor: pointer;
+  }

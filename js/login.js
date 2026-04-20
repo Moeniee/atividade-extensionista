@@ -9,18 +9,69 @@ function onChangePassword() {
 } 
 
 function login(event) {
-    if (event) {
-        event.preventDefault();
-    }
-
-    toggleEmailErrors();
-    togglePasswordErrors();
-
-    if (!isEmailValid() || !isPasswordValid()) {
-        return false;
-    }
+    showLoading();
+  event.preventDefault();
+  firebase.auth().signInWithEmailAndPassword(form.email().value, form.password().value).then(response => {
+    hideLoading();
+    console.log('Login successful', response);
     window.location.href = "index.html";
-    return false;
+  }).catch(error => {
+    hideLoading();
+    console.log('Login error', error);
+    alert(getErrorMessage(error));
+  });
+  return false;
+}
+
+function getErrorMessage(error) {
+    if(error.code === "auth/user-not-found") {
+        return "Usuário não encontrado.";
+    }
+    if(error.code === "auth/wrong-password") {
+        return "Senha incorreta.";
+    }
+    if(error.code === "auth/invalid-email") {
+        return "E-mail inválido.";
+    }
+    if(error.code === "auth/user-disabled") {
+        return "Conta desabilitada.";
+    }
+    if(error.code === "auth/too-many-requests") {
+        return "Muitas tentativas. Tente novamente mais tarde.";
+    }
+    return error.message;
+}
+
+function cadastrar() {
+    window.location.href = "cadastro.html";
+}
+
+function recoverPassword() {
+    const email = form.email().value.trim();
+    
+    if (!email) {
+        alert("Por favor, insira seu e-mail para recuperar a senha.");
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        alert("Por favor, insira um e-mail válido.");
+        return;
+    }
+    
+    showLoading();
+    firebase.auth().sendPasswordResetEmail(email).then(() => {
+        hideLoading();
+        alert("E-mail de recuperação enviado! Verifique sua caixa de entrada (e também a pasta de spam).");
+    }).catch(error => {
+        hideLoading();
+        console.log('Recover password error', error);
+        if (error.code === "auth/user-not-found") {
+            alert("E-mail não encontrado em nosso sistema.");
+        } else {
+            alert("Erro ao enviar e-mail de recuperação: " + error.message);
+        }
+    });
 }
 
 function toggleEmailErrors() {

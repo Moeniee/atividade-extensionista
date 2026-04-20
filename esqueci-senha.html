@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>IBNOV - Recuperar Senha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body class="centralize">
+  <header>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <a href="index.html"><img src="img/image.png" style="padding-left: 20px;" alt="Logo"></a>
+    </nav>
+  </header>
+
+  <section class="container">
+    <h2>RECUPERAR SENHA</h2>
+    <hr>
+    <p class="text-center mb-4">Insira seu e-mail para receber as instruções de recuperação de senha.</p>
+    
+    <form class="form" onsubmit="return resetPassword(event)">
+      <div class="mb-3">
+        <label for="reset-email" class="form-label">E-mail</label>
+        <input type="email" class="form-control" name="email" id="reset-email" onchange="onChangeResetEmail()" placeholder="Digite o seu E-mail">
+        <div class="error" id="reset-email-invalid-error">Por favor, insira um e-mail válido.</div>
+        <div class="error" id="reset-email-required-error">O campo de e-mail é obrigatório.</div>
+      </div>
+      
+      <div class="d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-primary" id="reset-button">Enviar Link de Recuperação</button>
+        <a href="login.html" class="btn btn-secondary">Voltar ao Login</a>
+      </div>
+    </form>
+    
+    <hr>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        <p>Não tem conta?<a href="cadastro.html">Cadastrar</a></p> 
+      </div>
+      <div>
+        <a href="index.html">Início</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="row">
+      <div class="float-start">
+        <div class="col mt-2">
+          <a class="logo my-3" href="index.html"><img src="img/image.png" alt="Logo" style="padding-left: 20px;"></a>
+        </div>
+        <p class="footer-links m-0">
+          <a href="index.html">Início</a>
+          <a href="sobre.html">Sobre</a>
+          <a href="contato.html">Contato</a>
+        </p>
+      </div>
+      <div class="float-end">
+        <p class="m-0">© 2024 IBNOV. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="js/loading.js"></script>
+  <script src="js/validations.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDS7AB6QNdpRhbmSgl6Zg8ntVW94uCiek8",
+      authDomain: "ibnov-fabbd.firebaseapp.com",
+      projectId: "ibnov-fabbd",
+      storageBucket: "ibnov-fabbd.firebasestorage.app",
+      messagingSenderId: "696298358940",
+      appId: "1:696298358940:web:1a3c9875f8463e79b54559",
+      measurementId: "G-YQPVHSK5V3"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script>
+    const resetForm = {
+      email: () => document.getElementById("reset-email"),
+      emailInvalidError: () => document.getElementById("reset-email-invalid-error"),
+      emailRequiredError: () => document.getElementById("reset-email-required-error"),
+      resetButton: () => document.getElementById("reset-button"),
+    };
+
+    function onChangeResetEmail() {
+      const email = resetForm.email().value.trim();
+      const hasEmail = email.length > 0;
+
+      resetForm.emailRequiredError().style.display = hasEmail ? "none" : "block";
+      resetForm.emailInvalidError().style.display = hasEmail && !validateEmail(email) ? "block" : "none";
+    }
+
+    function resetPassword(event) {
+      event.preventDefault();
+      
+      const email = resetForm.email().value.trim();
+      
+      if (!email) {
+        alert("Por favor, insira seu e-mail.");
+        return false;
+      }
+      
+      if (!validateEmail(email)) {
+        alert("Por favor, insira um e-mail válido.");
+        return false;
+      }
+      
+      showLoading();
+      firebase.auth().sendPasswordResetEmail(email).then(() => {
+        hideLoading();
+        alert("E-mail de recuperação enviado com sucesso! Verifique sua caixa de entrada (e também a pasta de spam).");
+        window.location.href = "login.html";
+      }).catch(error => {
+        hideLoading();
+        console.log('Reset password error', error);
+        if (error.code === "auth/user-not-found") {
+          alert("E-mail não encontrado em nosso sistema.");
+        } else {
+          alert("Erro ao enviar e-mail de recuperação: " + error.message);
+        }
+      });
+      
+      return false;
+    }
+  </script>
+</body>
+</html>
