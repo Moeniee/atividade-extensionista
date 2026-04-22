@@ -1,3 +1,10 @@
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        console.log('User is already logged in', user);
+        window.location.href = "index.html";
+    }
+});
+
 function onChangeEmail() {
     toggleEmailErrors();
     toggleButtonsDisable();
@@ -42,9 +49,6 @@ function getErrorMessage(error) {
     return error.message;
 }
 
-function cadastrar() {
-    window.location.href = "cadastro.html";
-}
 
 function recoverPassword() {
     const email = form.email().value.trim();
@@ -89,10 +93,15 @@ function togglePasswordErrors() {
 
 function toggleButtonsDisable() {
     const emailValid = isEmailValid();
+    const passwordValid = isPasswordValid();
     const recover = form.recoverPasswordButton();
     if (recover) {
         recover.style.pointerEvents = emailValid ? "auto" : "none";
         recover.style.opacity = emailValid ? "1" : "0.5";
+    }
+    const loginBtn = form.loginButton();
+    if (loginBtn) {
+        loginBtn.disabled = !(emailValid && passwordValid);
     }
 }
 

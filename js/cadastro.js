@@ -12,6 +12,14 @@ let enderecoTouched = false;
 let notificacaoTouched = false;
 let dataNascTouched = false;
 
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        console.log('User is already logged in', user);
+        window.location.href = "index.html";
+    }
+});
+
+
 function onChangeNome() {
     nameTouched = true;
     const name = form.nome().value.trim();
@@ -111,6 +119,8 @@ function onChangeNotificacao() {
 }
 
 function onSubmit(event) {
+    event.preventDefault(); // Always prevent default to handle via JS
+
     const name = form.nome().value.trim();
     const lastName = form.sobrenome().value.trim();
     const email = form.email().value.trim();
@@ -139,7 +149,7 @@ function onSubmit(event) {
     const notificacaoValid = !!notificacao;
     const dataNascValid = dataNasc;
 
-    // Show all errors on submit
+
     form.nameRequiredError().style.display = !name ? "block" : "none";
     form.lastNameRequiredError().style.display = !lastName ? "block" : "none";
     form.emailInvalidError().style.display = !validateEmail(email) ? "block" : "none";
@@ -160,8 +170,9 @@ function onSubmit(event) {
     form.notificacaoRequiredError().style.display = !notificacao ? "block" : "none";
     form.dataNascRequiredError().style.display = !dataNasc ? "block" : "none";
 
-    if (!nameValid || !lastNameValid || !emailValid || !passwordValid || !confirmValid || !cpfValid || !cepValid || !telefoneValid || !numeroValid || !generoValid || !enderecoValid || !notificacaoValid || !dataNascValid) {
-        event.preventDefault();
+    if (nameValid && lastNameValid && emailValid && passwordValid && confirmValid && cpfValid && cepValid && telefoneValid && numeroValid && generoValid && enderecoValid && notificacaoValid && dataNascValid) {
+        cadastrar();
+    } else {
         alert("Por favor, corrija os erros no formulário antes de enviar.");
     }
 }
@@ -259,8 +270,56 @@ const form = {
     notificacaoRequiredError: () => document.getElementById("notificacao-required-error"),
     dataNasc: () => document.querySelector('input[name="dataNasc"]'),
     dataNascRequiredError: () => document.getElementById("dataNasc-required-error"),
-    registerButton: () => document.getElementById("register-buttom")
+    registerButton: () => document.getElementById("register-button")
 };
 
-// Add event listener to form
+function cadastrar() {
+    showLoading();
+
+    const email = form.email().value.trim();
+    const password = form.password().value.trim();
+    const nome = form.nome().value.trim();
+    const sobrenome = form.sobrenome().value.trim();
+    const cpf = form.cpf().value.trim();
+    const cep = form.cep().value.trim();
+    const telefone = form.telefone().value.trim();
+    const numero = form.numero().value.trim();
+    const genero = form.genero() ? form.genero().value : "";
+    const endereco = form.endereco().value.trim();
+    const notificacao = form.notificacao() ? form.notificacao().value : "";
+    const dataNasc = form.dataNasc().value.trim();
+
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(response => {
+        firebase.firestore().collection('users').doc(response.user.uid).set({
+            nome: nome,
+            sobrenome: sobrenome,
+            cpf: cpf,
+            cep: cep,
+            telefone: telefone,
+            numero: numero,
+            genero: genero,
+            endereco: endereco,
+            notificacao: notificacao,
+            dataNasc: dataNasc
+        }).then(() => {
+            hideLoading();
+            console.log('Cadastro realizado com sucesso', response);
+            window.location.href = "index.html";
+        }).catch(error => {
+            hideLoading();
+            alert("Erro ao salvar dados: " + error.message);
+        });
+    }).catch(error => {
+        hideLoading();
+        alert(getErrorMessage(error));
+    });
+}
+
+function getErrorMessage(error) {
+    if (error.code === "auth/email-already-in-use") {
+        return "O e-mail informado já está em uso. Por favor, utilize outro e-mail ou faça login.";
+    }
+    return error.message;
+}
+
 document.querySelector('form').addEventListener('submit', onSubmit);

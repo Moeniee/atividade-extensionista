@@ -22,13 +22,13 @@
     <form class="form" method="get" action="#" onsubmit="return login(event)">
       <div class="mb-3">
         <label for="email" class="form-label">E-mail</label>
-        <input type="email" class="form-control" name="email" id="email" onchange="onChangeEmail()" placeholder="Digite o seu E-mail">
+        <input type="email" class="form-control" name="email" id="email" onchange="onChangeEmail()" onblur="onChangeEmail()" placeholder="Digite o seu E-mail">
         <div class="error" id="email-invalid-error">Por favor, insira um e-mail válido.</div>
         <div class="error" id="email-required-error">O campo de e-mail é obrigatório.</div>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Senha</label>
-        <input type="password" class="form-control" name="password" id="password" onchange="onChangePassword()" placeholder="Digite a sua senha">
+        <input type="password" class="form-control" name="password" id="password" onchange="onChangePassword()" onblur="onChangePassword()" placeholder="Digite a sua senha">
         <div class="error" id="password-required-error">O campo de senha é obrigatório.</div>
       </div>
       <div class="mb-3 text-center">
@@ -69,23 +69,12 @@
   </footer>
  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-init.js"></script>
 <script src="js/login.js"></script>
 <script src="js/loading.js"></script>
 <script src="js/validations.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDS7AB6QNdpRhbmSgl6Zg8ntVW94uCiek8",
-    authDomain: "ibnov-fabbd.firebaseapp.com",
-    projectId: "ibnov-fabbd",
-    storageBucket: "ibnov-fabbd.firebasestorage.app",
-    messagingSenderId: "696298358940",
-    appId: "1:696298358940:web:1a3c9875f8463e79b54559",
-    measurementId: "G-YQPVHSK5V3"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
 </body>
 
 
