@@ -395,27 +395,31 @@
               <strong>Nome</strong>
             </label>
             <input type="text" class="form-control shadow" id="name" aria-describedby="name">
+            <div class="error d-none" id="name-error">Nome obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="email" class="form-label">
               <strong class="fs-5">Email</strong>
             </label>
             <input type="email" class="form-control shadow" id="email" aria-describedby="email">
+            <div class="error d-none" id="email-error">Email obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="telefone" class="form-label">
               <strong class="fs-5">Telefone</strong>
             </label>
             <input type="tel" class="form-control shadow" id="telefone" aria-describedby="telefone">
+            <div class="error d-none" id="telefone-error">Telefone obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="data_nascimento" class="form-label">
               <strong class="fs-5">Data de Nascimento</strong>
             </label>
             <input type="date" class="form-control shadow" id="data_nascimento" aria-describedby="data_nascimento">
+              <div class="error d-none" id="data_nascimento-error">Data de nascimento obrigatória</div>
           </div>
           <div class="mb-3 d-flex justify-content-center">
-            <button type="submit" class="btn btn-light shadow">
+            <button type="button" class="btn btn-light shadow" id="newsletter-btn">
               <strong class="fs-5">Inscrever-se</strong>
             </button>
           </div>
@@ -437,6 +441,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-init.js"></script>
 <script src="js/index.js"></script>
 </body>

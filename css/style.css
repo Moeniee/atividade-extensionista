@@ -27,6 +27,17 @@
   margin: 5rem 0;
 }
 
+/* Error messages for newsletter form */
+.error {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
 @media (min-width: 40em) {
   .featurette-heading {
     font-size: 50px;

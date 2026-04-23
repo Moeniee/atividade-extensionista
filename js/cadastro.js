@@ -274,6 +274,24 @@ const form = {
 };
 
 function cadastrar() {
+    console.log('>>> Função cadastrar() iniciada');
+    console.log('>>> Valores dos campos:', {
+        nome: form.nome().value,
+        sobrenome: form.sobrenome().value,
+        email: form.email().value,
+        cpf: form.cpf().value,
+        telefone: form.telefone().value,
+        genero: form.genero() ? form.genero().value : null,
+        endereco: form.endereco().value,
+        notificacaoRaw: form.notificacao() ? form.notificacao().value : null,
+        dataNasc: form.dataNasc().value
+    });
+    
+    // Verify Firestore is available
+    const db = firebase.firestore();
+    console.log('>>> Firestore disponível:', !!db);
+    console.log('>>> Método add disponível:', typeof db.collection === 'function');
+    
     showLoading();
 
     const email = form.email().value.trim();
@@ -286,32 +304,46 @@ function cadastrar() {
     const numero = form.numero().value.trim();
     const genero = form.genero() ? form.genero().value : "";
     const endereco = form.endereco().value.trim();
-    const notificacao = form.notificacao() ? form.notificacao().value : "";
+    const notificacaoRaw = form.notificacao() ? form.notificacao().value : "";
     const dataNasc = form.dataNasc().value.trim();
+    
+    // Convert notificacao to boolean
+    const notificacao = notificacaoRaw === 'sim';
 
-    firebase.auth().createUserWithEmailAndPassword(email, password).then(response => {
-        firebase.firestore().collection('users').doc(response.user.uid).set({
+    console.log('>>> Criando usuário com email:', email);
+
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(response => {
+        console.log('>>> Firebase Auth OK, UID:', response.user.uid);
+        
+        const userData = {
             nome: nome,
             sobrenome: sobrenome,
             cpf: cpf,
-            cep: cep,
+            dataNasc: dataNasc,
+            email: email,
             telefone: telefone,
-            numero: numero,
             genero: genero,
             endereco: endereco,
             notificacao: notificacao,
-            dataNasc: dataNasc
-        }).then(() => {
-            hideLoading();
-            console.log('Cadastro realizado com sucesso', response);
-            window.location.href = "index.html";
-        }).catch(error => {
-            hideLoading();
-            alert("Erro ao salvar dados: " + error.message);
-        });
-    }).catch(error => {
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        console.log('>>> Dados a salvar:', userData);
+        
+        // Save to membro collection
+        return db.collection('membro').add(userData);
+    })
+    .then(docRef => {
+        console.log('>>> Documento salvo com ID:', docRef.id);
         hideLoading();
-        alert(getErrorMessage(error));
+        alert('Cadastro realizado com sucesso!');
+        window.location.href = "index.html";
+    })
+    .catch(error => {
+        console.error('>>> ERRO:', error);
+        hideLoading();
+        alert("Erro ao salvar dados: " + error.message);
     });
 }
 
