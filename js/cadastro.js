@@ -12,8 +12,11 @@ let enderecoTouched = false;
 let notificacaoTouched = false;
 let dataNascTouched = false;
 
+// Desabilitar redirecionamento automático durante cadastro
+let isRegistering = false;
+
 firebase.auth().onAuthStateChanged(user => {
-    if (user) {
+    if (user && !isRegistering) {
         console.log('User is already logged in', user);
         window.location.href = "index.html";
     }
@@ -275,23 +278,14 @@ const form = {
 
 function cadastrar() {
     console.log('>>> Função cadastrar() iniciada');
-    console.log('>>> Valores dos campos:', {
-        nome: form.nome().value,
-        sobrenome: form.sobrenome().value,
-        email: form.email().value,
-        cpf: form.cpf().value,
-        telefone: form.telefone().value,
-        genero: form.genero() ? form.genero().value : null,
-        endereco: form.endereco().value,
-        notificacaoRaw: form.notificacao() ? form.notificacao().value : null,
-        dataNasc: form.dataNasc().value
-    });
-    
+
+    isRegistering = true; // DESABILITA redirecionamento automático
+
     // Verify Firestore is available
     const db = firebase.firestore();
     console.log('>>> Firestore disponível:', !!db);
-    console.log('>>> Método add disponível:', typeof db.collection === 'function');
-    
+    console.log('>>> Método collection disponível:', typeof db.collection === 'function');
+
     showLoading();
 
     const email = form.email().value.trim();
@@ -306,43 +300,58 @@ function cadastrar() {
     const endereco = form.endereco().value.trim();
     const notificacaoRaw = form.notificacao() ? form.notificacao().value : "";
     const dataNasc = form.dataNasc().value.trim();
-    
+
     // Convert notificacao to boolean
     const notificacao = notificacaoRaw === 'sim';
+
+    console.log('>>> Valores coletados:', {
+        nome, sobrenome, cpf, cep, telefone, numero, genero, endereco, email, dataNasc, notificacao
+    });
 
     console.log('>>> Criando usuário com email:', email);
 
     firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(response => {
         console.log('>>> Firebase Auth OK, UID:', response.user.uid);
-        
+        alert('✅ Usuário criado com sucesso no Firebase Auth! Agora salvando dados...'); // NOVA MENSAGEM
+
         const userData = {
             nome: nome,
             sobrenome: sobrenome,
             cpf: cpf,
-            dataNasc: dataNasc,
-            email: email,
+            cep: cep,
             telefone: telefone,
+            numero: numero,
             genero: genero,
             endereco: endereco,
+            email: email,
+            dataNasc: dataNasc,
             notificacao: notificacao,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-        
-        console.log('>>> Dados a salvar:', userData);
-        
+
+        console.log('>>> Dados a salvar:', JSON.stringify(userData, null, 2));
+        console.log('>>> Tentando salvar na collection "membro"');
+        console.log('>>> db.collection("membro"):', db.collection("membro"));
+
         // Save to membro collection
-        return db.collection('membro').add(userData);
+        const promise = db.collection('membro').add(userData);
+        console.log('>>> Promise criada:', promise);
+        return promise;
     })
     .then(docRef => {
-        console.log('>>> Documento salvo com ID:', docRef.id);
+        console.log('>>> Documento salvo com sucesso! ID:', docRef.id);
         hideLoading();
+        isRegistering = false; // Permite redirecionamento
         alert('Cadastro realizado com sucesso!');
         window.location.href = "index.html";
     })
     .catch(error => {
-        console.error('>>> ERRO:', error);
+        console.error('>>> ERRO CAPTURADO:', error.code, error.message);
+        console.error('>>> Detalhes do erro:', JSON.stringify(error, null, 2));
+        console.error('>>> Stack:', error.stack);
         hideLoading();
+        isRegistering = false; // Permite redirecionamento
         alert("Erro ao salvar dados: " + error.message);
     });
 }
