@@ -38,7 +38,7 @@
             <li><a class="dropdown-item" href="#">Vídeos</a></li>
           </ul>
         </li>
-        <button type="button" class="btn btn-info">Quero Doar</button>
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalPix">Quero Doar</button>
       </ul>
       <form class="d-flex me-2" role="search">
         <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar"/>
@@ -448,5 +448,41 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-init.js"></script>
 <script src="js/index.js"></script>
+<!-- Modal Pix -->
+<div class="modal fade" id="modalPix" tabindex="-1" aria-labelledby="modalPixLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-3">
+
+      <div class="modal-header border-0 justify-content-between">
+        <h5 class="modal-title fw-bold" id="modalPixLabel">Pagar com Pix</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="text-muted">Escaneie o QR-Code ou copie o código abaixo</p>
+        <img src="img/qrcode-pix.png" alt="QR Code Pix"
+          style="width: 200px; height: 200px; border: 4px solid #32bcad; border-radius: 12px;">
+
+        <div class="input-group mt-4">
+          <input type="text" id="pixCode" class="form-control" readonly
+            value="TÁ UM PIX MANEIRO AQUI">
+          <button class="btn btn-success" onclick="copiarPix()">Copiar</button>
+        </div>
+        <small class="text-success fw-bold mt-2" id="copiado" style="display:none;">✅ Código copiado!</small>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+  function copiarPix() {
+    const input = document.getElementById('pixCode');
+    navigator.clipboard.writeText(input.value).then(() => {
+      const msg = document.getElementById('copiado');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 2500);
+    });
+  }
+</script>
 </body>
 </html>
