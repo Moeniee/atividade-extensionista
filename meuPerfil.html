@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/meuPerfil.css">
+    <link rel="stylesheet" href="css/global.css">
+    <title>IBNOV - Meu Perfil</title>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.html"><img src="img/image.png" alt="..."></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="index.html">Início</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Loja</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Eventos</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Comunicação
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Artigos</a></li>
+            <li><a class="dropdown-item" href="#">Podcasts</a></li>
+            <li><a class="dropdown-item" href="#">Vídeos</a></li>
+          </ul>
+        </li>
+        <button type="button" class="btn btn-info">Quero Doar</button>
+      </ul>
+      <form class="d-flex me-2" role="search">
+        <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar"/>
+        <button class="btn btn-outline-success" type="submit">Buscar</button>
+      </form>
+      <a class="btn btn-primary ms-2" href="login.html" id="login-btn">Login</a>
+    </div>
+  </div>
+</nav>
+<!-- Fim Navbar -->
+<section class="container">
+    <div class="box-top">
+        <img src="img/logo.jpeg" alt="Logo do IBNOV" width="150">
+        <h5>Meu Perfil</h5>
+        <h6>Atualize suas informações pessoais</h6>
+    </div>
+    <hr>
+    <div class="bottom-box">
+    <form method="post" action="">
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="nome" class="control-label">Nome</label>
+            <input type="text" class="form-control" name="nome" placeholder="Digite o seu nome" id="nome" oninput="onChangeNome()" required>
+            <div class="error" id="name-required-error">O campo de nome é obrigatório.</div>
+           </div>
+           <div class="col-sm-6">
+            <label for="sobrenome" class="control-label">Sobrenome</label>
+            <input type="text" class="form-control" name="sobrenome" placeholder="Digite o seu sobrenome" id="sobrenome" oninput="onChangeSobrenome()" required>
+            <div class="error" id="lastname-required-error">O campo de sobrenome é obrigatório.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="gender" class="control-label">Genero</label>
+            <label class="radio-inline">
+            <input type="radio" name="gender" value="M" onchange="onChangeGenero()" required>Masculino
+            </label>
+            <label class="radio-inline">
+            <input type="radio" name="gender" value="F" onchange="onChangeGenero()">Feminino
+            </label>
+            <div class="error" id="genero-required-error">O campo de gênero é obrigatório.</div>
+           </div>
+           <div class="col-sm-6">
+            <label for="dataNasc" class="control-label">Data de Nascimento</label>
+            <input type="date" class="form-control" name="dataNasc" placeholder="Digite a sua data de nascimento" oninput="onChangeDataNasc()" required>
+            <div class="error" id="dataNasc-required-error">O campo de data de nascimento é obrigatório.</div>
+           </div> 
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="telefone" class="control-label">Telefone</label>
+            <input type="text" class="form-control" name="telefone" placeholder="Digite o seu telefone" oninput="onChangeTelefone()" required>
+            <small>Nota: Digite o número completo, incluindo o DDD</small>
+            <div class="error" id="telefone-required-error">O campo de telefone é obrigatório.</div>
+            <div class="error" id="telefone-invalid-error">Por favor, insira um telefone válido.</div>
+           </div>
+           <div class="col-sm-6">
+            <label for="email" class="control-label">Email</label>
+            <input type="email" class="form-control" name="email" placeholder="Digite o seu email" oninput="onChangeEmail()" id="email">
+            <div class="error" id="email-invalid-error">Por favor, insira um e-mail válido.</div>
+            <div class="error" id="email-required-error">O campo de e-mail é obrigatório.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="cpf" class="control-label">CPF</label>
+            <input type="text" class="form-control" name="cpf" placeholder="Digite o seu CPF" id="cpf" oninput="onChangeCPF()" required>
+            <div class="error" id="cpf-invalid-error">Por favor, insira um CPF válido.</div>
+            <div class="error" id="cpf-required-error">O campo de CPF é obrigatório.</div>
+           </div>
+           <div class="col-sm-6">
+            <label for="numero" class="control-label">Número</label>
+            <input type="text" class="form-control" name="numero" placeholder="Digite o número do endereço" oninput="onChangeNumero()" required>
+            <div class="error" id="numero-required-error">O campo de número é obrigatório.</div>
+            <div class="error" id="numero-invalid-error">Por favor, insira um número válido.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="cep" class="control-label">CEP</label>
+            <input type="text" class="form-control" name="cep" placeholder="Digite o seu CEP" id="cep" oninput="onChangeCEP()" required>
+            <div class="error" id="cep-invalid-error">Por favor, insira um CEP válido (8 dígitos).</div>
+            <div class="error" id="cep-required-error">O campo de CEP é obrigatório.</div>
+           </div>
+           <div class="col-sm-6">
+            <label for="endereco" class="control-label">Endereço</label>
+            <input type="text" class="form-control" name="endereco" placeholder="Digite o seu endereço" oninput="onChangeEndereco()" required>
+            <div class="error" id="endereco-required-error">O campo de endereço é obrigatório.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="password" class="control-label">Senha</label>
+            <input type="password" class="form-control" name="password" placeholder="Digite a sua senha" id="password" oninput="onChangePassword()">
+            <div class="error" id="password-required-error">O campo de senha é obrigatório.</div>
+            <div class="error" id="password-length-error">A senha deve conter pelo menos 6 caracteres.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label for="confirmPassword" class="control-label">Confirmar Senha</label>
+            <input type="password" class="form-control" name="confirmPassword" placeholder="Digite a sua senha novamente" id="confirmPassword" oninput="onChangeConfirmPassword()">
+            <div class="error" id="password-doesnt-match-error">As senhas não coincidem.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <label class="control-label">Deseja receber as novidades da igreja?</label>
+            <div>
+                <label><input type="radio" name="notificacoes" value="sim" onchange="onChangeNotificacao()" required> Sim</label>
+                <label><input type="radio" name="notificacoes" value="nao" onchange="onChangeNotificacao()"> Não</label>
+            </div>
+            <div class="error" id="notificacao-required-error">O campo de notificações é obrigatório.</div>
+           </div>
+        </div>
+
+        <div class="row justify-content-center">
+           <div class="col-sm-6">
+            <button type="submit" class="btn btn-primary" id="register-button">Cadastrar</button>
+            </div>
+        </div>
+    </form>
+    </div>
+
+    <hr>
+    <div class="row justify-content-center">
+        <div class="row-botton">
+            <div class="col float-start">
+                <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+            </div>
+            <div class="col float-end">
+                <a href="index.html">Voltar para a página inicial</a>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="bg-dark text-light mt-auto">
+  <div class="container py-4">
+    <p class="text-center mb-0">
+      &copy; 2024 Igreja Batista Nova Vida. Todos os direitos reservados.
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-init.js"></script>
+<script src="js/loading.js"></script>
+<script src="js/validations.js"></script>
+<script src="js/meuPerfil.js"></script>
+<script src="js/cadastro.js"></script>
+<script src="js/index.js"></script>  
+</body>
+</html>
