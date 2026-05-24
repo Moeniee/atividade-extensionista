@@ -316,6 +316,7 @@ function cadastrar() {
         alert('✅ Usuário criado com sucesso no Firebase Auth! Agora salvando dados...'); // NOVA MENSAGEM
 
         const userData = {
+            uid: response.user.uid,
             nome: nome,
             sobrenome: sobrenome,
             cpf: cpf,
@@ -334,13 +335,13 @@ function cadastrar() {
         console.log('>>> Tentando salvar na collection "membro"');
         console.log('>>> db.collection("membro"):', db.collection("membro"));
 
-        // Save to membro collection
-        const promise = db.collection('membro').add(userData);
+        // Save to membro collection using the auth UID as document ID.
+        const promise = db.collection('membro').doc(response.user.uid).set(userData);
         console.log('>>> Promise criada:', promise);
         return promise;
     })
-    .then(docRef => {
-        console.log('>>> Documento salvo com sucesso! ID:', docRef.id);
+    .then(() => {
+        console.log('>>> Documento salvo com sucesso! UID:', firebase.auth().currentUser.uid);
         hideLoading();
         isRegistering = false; // Permite redirecionamento
         alert('Cadastro realizado com sucesso!');

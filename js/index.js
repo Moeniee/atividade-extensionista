@@ -204,3 +204,12 @@ function topo(){
         }
         );
 }
+
+function copiarPix() {
+    const input = document.getElementById('pixCode');
+    navigator.clipboard.writeText(input.value).then(() => {
+      const msg = document.getElementById('copiado');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 2500);
+    });
+  }

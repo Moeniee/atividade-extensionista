@@ -57,7 +57,10 @@
     </div>
     <hr>
     <div class="bottom-box">
-    <form method="post" action="">
+    <div class="alert alert-info" id="profile-status" role="alert">
+        Carregando seus dados...
+    </div>
+    <form id="profile-form" method="post" action="">
         <div class="row justify-content-center">
            <div class="col-sm-6">
             <label for="nome" class="control-label">Nome</label>
@@ -84,7 +87,7 @@
            </div>
            <div class="col-sm-6">
             <label for="dataNasc" class="control-label">Data de Nascimento</label>
-            <input type="date" class="form-control" name="dataNasc" placeholder="Digite a sua data de nascimento" oninput="onChangeDataNasc()" required>
+            <input type="date" class="form-control" name="dataNasc" id="dataNasc" placeholder="Digite a sua data de nascimento" oninput="onChangeDataNasc()" required>
             <div class="error" id="dataNasc-required-error">O campo de data de nascimento é obrigatório.</div>
            </div> 
         </div>
@@ -92,7 +95,7 @@
         <div class="row justify-content-center">
            <div class="col-sm-6">
             <label for="telefone" class="control-label">Telefone</label>
-            <input type="text" class="form-control" name="telefone" placeholder="Digite o seu telefone" oninput="onChangeTelefone()" required>
+            <input type="text" class="form-control" name="telefone" id="telefone" placeholder="Digite o seu telefone" oninput="onChangeTelefone()" required>
             <small>Nota: Digite o número completo, incluindo o DDD</small>
             <div class="error" id="telefone-required-error">O campo de telefone é obrigatório.</div>
             <div class="error" id="telefone-invalid-error">Por favor, insira um telefone válido.</div>
@@ -114,7 +117,7 @@
            </div>
            <div class="col-sm-6">
             <label for="numero" class="control-label">Número</label>
-            <input type="text" class="form-control" name="numero" placeholder="Digite o número do endereço" oninput="onChangeNumero()" required>
+            <input type="text" class="form-control" name="numero" id="numero" placeholder="Digite o número do endereço" oninput="onChangeNumero()" required>
             <div class="error" id="numero-required-error">O campo de número é obrigatório.</div>
             <div class="error" id="numero-invalid-error">Por favor, insira um número válido.</div>
            </div>
@@ -129,25 +132,8 @@
            </div>
            <div class="col-sm-6">
             <label for="endereco" class="control-label">Endereço</label>
-            <input type="text" class="form-control" name="endereco" placeholder="Digite o seu endereço" oninput="onChangeEndereco()" required>
+            <input type="text" class="form-control" name="endereco" id="endereco" placeholder="Digite o seu endereço" oninput="onChangeEndereco()" required>
             <div class="error" id="endereco-required-error">O campo de endereço é obrigatório.</div>
-           </div>
-        </div>
-
-        <div class="row justify-content-center">
-           <div class="col-sm-6">
-            <label for="password" class="control-label">Senha</label>
-            <input type="password" class="form-control" name="password" placeholder="Digite a sua senha" id="password" oninput="onChangePassword()">
-            <div class="error" id="password-required-error">O campo de senha é obrigatório.</div>
-            <div class="error" id="password-length-error">A senha deve conter pelo menos 6 caracteres.</div>
-           </div>
-        </div>
-
-        <div class="row justify-content-center">
-           <div class="col-sm-6">
-            <label for="confirmPassword" class="control-label">Confirmar Senha</label>
-            <input type="password" class="form-control" name="confirmPassword" placeholder="Digite a sua senha novamente" id="confirmPassword" oninput="onChangeConfirmPassword()">
-            <div class="error" id="password-doesnt-match-error">As senhas não coincidem.</div>
            </div>
         </div>
 
@@ -163,8 +149,11 @@
         </div>
 
         <div class="row justify-content-center">
-           <div class="col-sm-6">
-            <button type="submit" class="btn btn-primary" id="register-button">Cadastrar</button>
+           <div class="col-sm-6 d-flex flex-wrap gap-2 justify-content-center">
+            <button type="button" class="btn btn-primary" id="edit-profile-button">Editar informações</button>
+            <button type="submit" class="btn btn-success d-none" id="save-profile-button">Salvar alterações</button>
+            <button type="button" class="btn btn-outline-secondary d-none" id="cancel-edit-button">Cancelar</button>
+            <button type="button" class="btn btn-outline-danger" id="delete-profile-button">Excluir conta</button>
             </div>
         </div>
     </form>
@@ -174,10 +163,10 @@
     <div class="row justify-content-center">
         <div class="row-botton">
             <div class="col float-start">
-                <p>Já tem uma conta? <a href="login.html">Faça login</a></p>
+                <p><a href="index.html">Voltar para a página inicial</a></p>
             </div>
             <div class="col float-end">
-                <a href="index.html">Voltar para a página inicial</a>
+                <a href="#" onclick="logout(); return false;">Sair da conta</a>
             </div>
         </div>
     </div>
@@ -198,7 +187,5 @@
 <script src="js/loading.js"></script>
 <script src="js/validations.js"></script>
 <script src="js/meuPerfil.js"></script>
-<script src="js/cadastro.js"></script>
-<script src="js/index.js"></script>  
 </body>
 </html>
