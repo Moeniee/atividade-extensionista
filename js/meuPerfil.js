@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 firebase.auth().onAuthStateChanged(async user => {
     if (!user) {
-        window.location.href = "/login.html";
+        window.location.href = "/login";
         return;
     }
 
@@ -79,7 +79,7 @@ function setupNavbarForLoggedUser() {
             <i class="bi bi-person-circle"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/meuPerfil.html">Meu Perfil</a></li>
+            <li><a class="dropdown-item" href="/meuPerfil">Meu Perfil</a></li>
             <li><a class="dropdown-item" href="#" onclick="logout(); return false;">Sair</a></li>
         </ul>
     `;

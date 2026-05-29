@@ -1,25 +1,54 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/index.js"
+      "src": "api/index.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/login",
-      "destination": "/login.html"
+      "src": "*.html",
+      "use": "@vercel/static"
     },
     {
-      "source": "/cadastro",
-      "destination": "/cadastro.html"
+      "src": "css/**",
+      "use": "@vercel/static"
     },
     {
-      "source": "/meuPerfil",
-      "destination": "/meuPerfil.html"
+      "src": "js/**",
+      "use": "@vercel/static"
     },
     {
-      "source": "/meuperfil",
-      "destination": "/meuPerfil.html"
+      "src": "img/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/login.html"
+    },
+    {
+      "src": "/cadastro",
+      "dest": "/cadastro.html"
+    },
+    {
+      "src": "/meuPerfil",
+      "dest": "/meuPerfil.html"
+    },
+    {
+      "src": "/meuperfil",
+      "dest": "/meuPerfil.html"
     }
   ]
 }
