@@ -167,12 +167,32 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
 
 app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) => {
     try {
-        const paymentId = req.body?.data?.id || req.query.id || req.query["data.id"];
-        const eventType = req.body?.type || req.query.type || req.query.topic;
+        const body = req.body || {};
+        const paymentId = body?.data?.id || body?.data?.object?.id || body?.id || req.query.id || req.query["data.id"];
+        const eventType = body?.type || body?.topic || req.query.type || req.query.topic;
+        const normalizedEventType = String(eventType || "").toLowerCase();
+        const acceptedEvents = [
+            "payment",
+            "payment.created",
+            "payment.updated",
+            "merchant_order",
+            "merchant_order.created",
+            "merchant_order.updated"
+        ];
+
+        console.log("Mercado Pago webhook received", {
+            eventType: normalizedEventType,
+            paymentId,
+            body: body
+        });
 
         res.sendStatus(200);
 
-        if (!paymentId || (eventType && !["payment", "merchant_order"].includes(eventType))) {
+        if (!paymentId || (normalizedEventType && !acceptedEvents.includes(normalizedEventType))) {
+            console.warn("Webhook ignorado: evento não suportado ou id ausente", {
+                eventType: normalizedEventType,
+                paymentId
+            });
             return;
         }
 
