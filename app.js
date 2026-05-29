@@ -8,6 +8,20 @@ const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const app = express();
 const MERCADO_PAGO_API_URL = "https://api.mercadopago.com/v1/payments";
 
+function mapMercadoPagoStatus(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (normalized === "approved") {
+        return "ok";
+    }
+    if (["pending", "in_process", "authorized", "in_process"].includes(normalized)) {
+        return "pending";
+    }
+    if (["rejected", "cancelled", "refunded", "charged_back"].includes(normalized)) {
+        return "failed";
+    }
+    return normalized || "pending";
+}
+
 function getFirebaseCredential() {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
         const serviceAccount = JSON.parse(
@@ -122,7 +136,7 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
             });
         }
 
-        const paymentStatus = payment.status === "approved" ? "ok" : payment.status || "pendente";
+        const paymentStatus = mapMercadoPagoStatus(payment.status);
 
         console.log("Mercado Pago create payment:", {
             paymentId: payment.id,
@@ -135,7 +149,6 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
             transactionId: String(payment.id),
             status: paymentStatus
         });
-
         const transactionData = payment.point_of_interaction?.transaction_data || {};
 
         return res.status(201).json({
@@ -182,7 +195,7 @@ app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) 
             return;
         }
 
-        const updatedStatus = payment.status === "approved" ? "ok" : payment.status;
+        const updatedStatus = mapMercadoPagoStatus(payment.status);
 
         console.log("Mercado Pago webhook update:", {
             paymentId,
