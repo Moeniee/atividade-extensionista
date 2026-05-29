@@ -189,14 +189,12 @@ app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) 
             body: body
         });
 
-        res.sendStatus(200);
-
         if (!eventId || (normalizedEventType && !acceptedEvents.includes(normalizedEventType))) {
             console.warn("Webhook ignorado: evento não suportado ou id ausente", {
                 eventType: normalizedEventType,
                 eventId
             });
-            return;
+            return res.sendStatus(200);
         }
 
         let payment;
@@ -266,8 +264,11 @@ app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) 
             transactionId: String(payment.id),
             metodoPagamento: "pix"
         }, { merge: true });
+
+        return res.sendStatus(200);
     } catch (error) {
         console.error("Erro no webhook Mercado Pago:", error);
+        return res.sendStatus(500);
     }
 });
 
