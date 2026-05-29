@@ -146,12 +146,19 @@ function validateNewsletterForm() {
 }
 
 
+function createLeadId(email) {
+    const normalized = email.trim().toLowerCase();
+    return btoa(normalized).replace(/\//g, '_').replace(/\+/g, '-').replace(/=+$/, '');
+}
+
 async function registerForNewsletter(userData) {
     try {
         const db = firebase.firestore();
+        const leadId = createLeadId(userData.email);
 
-        await db.collection('leads').add({
+        await db.collection('leads').doc(leadId).create({
             ...userData,
+            email: userData.email.trim().toLowerCase(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             status: 'active'
         });
@@ -159,6 +166,9 @@ async function registerForNewsletter(userData) {
         return { success: true };
     } catch (error) {
         console.error('Lead registration error:', error);
+        if (error.code === 'already-exists') {
+            return { success: false, error: 'Este email já está cadastrado!' };
+        }
         return { success: false, error: error.message };
     }
 }
