@@ -7,6 +7,7 @@ const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
 const app = express();
 const MERCADO_PAGO_API_URL = "https://api.mercadopago.com/v1/payments";
+const MERCADO_PAGO_MERCHANT_ORDER_URL = "https://api.mercadopago.com/merchant_orders";
 
 function mapMercadoPagoStatus(status) {
     const normalized = String(status || "").toLowerCase();
@@ -168,7 +169,6 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
 app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) => {
     try {
         const body = req.body || {};
-        const paymentId = body?.data?.id || body?.data?.object?.id || body?.id || req.query.id || req.query["data.id"];
         const eventType = body?.type || body?.topic || req.query.type || req.query.topic;
         const normalizedEventType = String(eventType || "").toLowerCase();
         const acceptedEvents = [
@@ -179,46 +179,78 @@ app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) 
             "merchant_order.created",
             "merchant_order.updated"
         ];
+        const eventId = body?.data?.id || body?.data?.object?.id || body?.id || req.query.id || req.query["data.id"];
+        const isMerchantOrderEvent = normalizedEventType.includes("merchant_order");
 
         console.log("Mercado Pago webhook received", {
             eventType: normalizedEventType,
-            paymentId,
+            eventId,
+            isMerchantOrderEvent,
             body: body
         });
 
         res.sendStatus(200);
 
-        if (!paymentId || (normalizedEventType && !acceptedEvents.includes(normalizedEventType))) {
+        if (!eventId || (normalizedEventType && !acceptedEvents.includes(normalizedEventType))) {
             console.warn("Webhook ignorado: evento não suportado ou id ausente", {
                 eventType: normalizedEventType,
-                paymentId
+                eventId
             });
             return;
         }
 
-        const mpResponse = await fetch(`${MERCADO_PAGO_API_URL}/${paymentId}`, {
-            headers: {
-                Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
-            }
-        });
+        let payment;
 
-        if (!mpResponse.ok) {
-            console.error("Erro ao consultar pagamento:", await mpResponse.text());
-            return;
+        if (isMerchantOrderEvent) {
+            const moResponse = await fetch(`${MERCADO_PAGO_MERCHANT_ORDER_URL}/${eventId}`, {
+                headers: {
+                    Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+                }
+            });
+
+            if (!moResponse.ok) {
+                console.error("Erro ao consultar merchant order:", await moResponse.text());
+                return;
+            }
+
+            const merchantOrder = await moResponse.json();
+            payment = Array.isArray(merchantOrder.payments)
+                ? merchantOrder.payments.find((p) => p?.id)
+                : null;
+
+            if (!payment) {
+                console.warn("Nenhum pagamento encontrado em merchant order", {
+                    merchantOrderId: eventId,
+                    merchantOrder
+                });
+                return;
+            }
+        } else {
+            const mpResponse = await fetch(`${MERCADO_PAGO_API_URL}/${eventId}`, {
+                headers: {
+                    Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+                }
+            });
+
+            if (!mpResponse.ok) {
+                console.error("Erro ao consultar pagamento:", await mpResponse.text());
+                return;
+            }
+
+            payment = await mpResponse.json();
         }
 
-        const payment = await mpResponse.json();
         const doacaoId = payment.external_reference || payment.metadata?.doacaoId;
 
         if (!doacaoId) {
-            console.error("Pagamento sem external_reference:", payment.id);
+            console.error("Pagamento sem external_reference:", payment.id || eventId);
             return;
         }
 
         const updatedStatus = mapMercadoPagoStatus(payment.status);
 
         console.log("Mercado Pago webhook update:", {
-            paymentId,
+            paymentId: payment.id,
             eventType,
             paymentStatus: payment.status,
             mappedStatus: updatedStatus,
