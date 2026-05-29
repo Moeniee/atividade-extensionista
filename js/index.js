@@ -156,17 +156,17 @@ async function registerForNewsletter(userData) {
         const db = firebase.firestore();
         const leadId = createLeadId(userData.email);
 
-        await db.collection('leads').doc(leadId).create({
+        await db.collection('leads').doc(leadId).set({
             ...userData,
             email: userData.email.trim().toLowerCase(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             status: 'active'
-        });
+        }, { merge: false });
         
         return { success: true };
     } catch (error) {
         console.error('Lead registration error:', error);
-        if (error.code === 'already-exists') {
+        if (error.code === 'permission-denied') {
             return { success: false, error: 'Este email já está cadastrado!' };
         }
         return { success: false, error: error.message };
