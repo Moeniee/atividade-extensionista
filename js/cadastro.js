@@ -18,7 +18,7 @@ let isRegistering = false;
 firebase.auth().onAuthStateChanged(user => {
     if (user && !isRegistering) {
         console.log('User is already logged in', user);
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     }
 });
 
@@ -345,7 +345,7 @@ function cadastrar() {
         hideLoading();
         isRegistering = false; // Permite redirecionamento
         alert('Cadastro realizado com sucesso!');
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     })
     .catch(error => {
         console.error('>>> ERRO CAPTURADO:', error.code, error.message);

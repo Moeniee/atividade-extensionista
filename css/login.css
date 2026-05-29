@@ -3,7 +3,7 @@
     padding: 0;
   }
   body{
-    background-image: linear-gradient(rgba(0, 0, 0, .9), rgba(0, 0, 0, .2)), url(../img/covenantmedia-bible-7092020.jpg);
+    background-image: linear-gradient(rgba(0, 0, 0, .9), rgba(0, 0, 0, .2)), url("/img/covenantmedia-bible-7092020.jpg");
     display: flex;
     background-attachment: fixed;
     justify-content: center;

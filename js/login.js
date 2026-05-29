@@ -1,7 +1,7 @@
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
         console.log('User is already logged in', user);
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     }
 });
 
@@ -21,7 +21,7 @@ function login(event) {
   firebase.auth().signInWithEmailAndPassword(form.email().value, form.password().value).then(response => {
     hideLoading();
     console.log('Login successful', response);
-    window.location.href = "index.html";
+    window.location.href = "/index.html";
   }).catch(error => {
     hideLoading();
     console.log('Login error', error);
@@ -125,4 +125,4 @@ const form = {
     password: () => document.getElementById("password"),
     passwordRequiredError: () => document.getElementById("password-required-error"),
     recoverPasswordButton: () => document.getElementById("recover-password-button"),
-} 
+}

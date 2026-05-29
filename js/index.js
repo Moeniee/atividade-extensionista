@@ -10,7 +10,7 @@ firebase.auth().onAuthStateChanged(user => {
                 <i class="bi bi-person-circle"></i>
             </button>
             <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                <li><a class="dropdown-item" href="meuPerfil.html">Meu Perfil</a></li>
+                <li><a class="dropdown-item" href="/meuPerfil.html">Meu Perfil</a></li>
                 <li><a class="dropdown-item" href="#" onclick="logout()">Sair</a></li>
             </ul>
         `;

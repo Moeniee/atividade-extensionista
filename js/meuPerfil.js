@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 firebase.auth().onAuthStateChanged(async user => {
     if (!user) {
-        window.location.href = "login.html";
+        window.location.href = "/login.html";
         return;
     }
 
@@ -79,7 +79,7 @@ function setupNavbarForLoggedUser() {
             <i class="bi bi-person-circle"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="meuPerfil.html">Meu Perfil</a></li>
+            <li><a class="dropdown-item" href="/meuPerfil.html">Meu Perfil</a></li>
             <li><a class="dropdown-item" href="#" onclick="logout(); return false;">Sair</a></li>
         </ul>
     `;
@@ -247,7 +247,7 @@ async function deleteProfile() {
         await db.collection("membro").doc(currentUser.uid).delete();
         await currentUser.delete();
         alert("Conta excluida com sucesso.");
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     } catch (error) {
         console.error("Erro ao excluir perfil:", error);
         setStatus(getProfileErrorMessage(error), "danger");
@@ -350,6 +350,6 @@ function onChangeNotificacao() { validateProfileForm(); }
 
 function logout() {
     firebase.auth().signOut().then(() => {
-        window.location.href = "index.html";
+        window.location.href = "/index.html";
     });
 }
