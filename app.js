@@ -1,0 +1,184 @@
+const express = require("express");
+const path = require("path");
+require("dotenv").config();
+
+const { initializeApp, applicationDefault, cert, getApps } = require("firebase-admin/app");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+
+const app = express();
+const MERCADO_PAGO_API_URL = "https://api.mercadopago.com/v1/payments";
+
+function getFirebaseCredential() {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        const serviceAccount = JSON.parse(
+            Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, "base64").toString("utf8")
+        );
+        return cert(serviceAccount);
+    }
+
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+        const serviceAccountPath = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+        return cert(require(serviceAccountPath));
+    }
+
+    return applicationDefault();
+}
+
+if (!getApps().length) {
+    initializeApp({
+        credential: getFirebaseCredential(),
+        projectId: process.env.FIREBASE_PROJECT_ID || "ibnov-fabbd"
+    });
+}
+
+const db = getFirestore();
+
+app.use(express.json());
+app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
+    try {
+        const nome = String(req.body.nome || "").trim();
+        const email = String(req.body.email || "").trim();
+        const mensagem = String(req.body.mensagem || "").trim();
+        const valor = Number(req.body.valor);
+
+        if (!nome || !email || !Number.isFinite(valor) || valor <= 0) {
+            return res.status(400).json({
+                error: "Informe nome, email e um valor de doacao valido."
+            });
+        }
+
+        if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+            return res.status(500).json({
+                error: "Token do Mercado Pago nao configurado no servidor."
+            });
+        }
+
+        const doacaoRef = db.collection("doacoes").doc();
+        const doacaoId = doacaoRef.id;
+
+        await doacaoRef.set({
+            nome,
+            email,
+            valor,
+            mensagem,
+            dataHora: FieldValue.serverTimestamp(),
+            status: "pendente",
+            transactionId: "",
+            metodoPagamento: "pix"
+        });
+
+        const body = {
+            transaction_amount: valor,
+            description: `Doacao IBNOV - ${nome}`,
+            payment_method_id: "pix",
+            payer: {
+                email,
+                first_name: nome
+            },
+            external_reference: doacaoId,
+            metadata: {
+                doacaoId,
+                nome,
+                mensagem
+            }
+        };
+
+        if (process.env.PUBLIC_BASE_URL) {
+            body.notification_url = `${process.env.PUBLIC_BASE_URL}/api/mercadopago/webhook`;
+        }
+
+        const mpResponse = await fetch(MERCADO_PAGO_API_URL, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
+                "Content-Type": "application/json",
+                "X-Idempotency-Key": doacaoId
+            },
+            body: JSON.stringify(body)
+        });
+
+        const payment = await mpResponse.json();
+
+        if (!mpResponse.ok) {
+            await doacaoRef.update({
+                status: "erro",
+                erroMercadoPago: payment.message || "Erro ao criar pagamento Pix"
+            });
+
+            return res.status(mpResponse.status).json({
+                error: payment.message || "Erro ao criar pagamento Pix."
+            });
+        }
+
+        await doacaoRef.update({
+            transactionId: String(payment.id),
+            status: payment.status || "pendente"
+        });
+
+        const transactionData = payment.point_of_interaction?.transaction_data || {};
+
+        return res.status(201).json({
+            doacaoId,
+            transactionId: String(payment.id),
+            status: payment.status,
+            qrCode: transactionData.qr_code,
+            qrCodeBase64: transactionData.qr_code_base64,
+            ticketUrl: transactionData.ticket_url
+        });
+    } catch (error) {
+        console.error("Erro ao criar Pix:", error);
+        return res.status(500).json({ error: "Erro interno ao criar Pix." });
+    }
+});
+
+app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) => {
+    try {
+        const paymentId = req.body?.data?.id || req.query.id || req.query["data.id"];
+        const eventType = req.body?.type || req.query.type || req.query.topic;
+
+        res.sendStatus(200);
+
+        if (!paymentId || (eventType && !["payment", "merchant_order"].includes(eventType))) {
+            return;
+        }
+
+        const mpResponse = await fetch(`${MERCADO_PAGO_API_URL}/${paymentId}`, {
+            headers: {
+                Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+            }
+        });
+
+        if (!mpResponse.ok) {
+            console.error("Erro ao consultar pagamento:", await mpResponse.text());
+            return;
+        }
+
+        const payment = await mpResponse.json();
+        const doacaoId = payment.external_reference || payment.metadata?.doacaoId;
+
+        if (!doacaoId) {
+            console.error("Pagamento sem external_reference:", payment.id);
+            return;
+        }
+
+        await db.collection("doacoes").doc(doacaoId).set({
+            nome: payment.metadata?.nome || payment.payer?.first_name || "",
+            valor: Number(payment.transaction_amount || 0),
+            mensagem: payment.metadata?.mensagem || "",
+            dataHora: FieldValue.serverTimestamp(),
+            status: payment.status === "approved" ? "pago" : payment.status,
+            transactionId: String(payment.id),
+            metodoPagamento: "pix"
+        }, { merge: true });
+    } catch (error) {
+        console.error("Erro no webhook Mercado Pago:", error);
+    }
+});
+
+module.exports = app;

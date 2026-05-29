@@ -114,3 +114,30 @@ iframe {
     bottom: 5px;
     right: 50px;
 }
+
+#carouselExampleCaptions .carousel-item {
+  height: 1200px;
+}
+
+#carouselExampleCaptions .carousel-item img {
+  height: 100%;
+  object-fit: cover;
+}
+
+#team .card img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+#team .card .card-body {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #carouselExampleCaptions .carousel-item {
+    height: 300px;
+  }
+}

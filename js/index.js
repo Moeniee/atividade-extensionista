@@ -195,6 +195,86 @@ if (form.newsletterBtn) {
 
 setupInputValidation();
 
+document.addEventListener('DOMContentLoaded', () => {
+    const formDoacaoPix = document.getElementById('formDoacaoPix');
+
+    if (!formDoacaoPix) {
+        return;
+    }
+
+    const elements = {
+        dados: document.getElementById('dadosDoacaoPix'),
+        resultado: document.getElementById('resultadoDoacaoPix'),
+        erro: document.getElementById('erroDoacaoPix'),
+        nome: document.getElementById('doacaoNome'),
+        email: document.getElementById('doacaoEmail'),
+        valor: document.getElementById('doacaoValor'),
+        mensagem: document.getElementById('doacaoMensagem'),
+        gerarBtn: document.getElementById('gerarPixBtn'),
+        qrCode: document.getElementById('doacaoPixQrCode'),
+        pixCode: document.getElementById('doacaoPixCode'),
+        ticketUrl: document.getElementById('doacaoPixTicketUrl')
+    };
+
+    formDoacaoPix.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        elements.erro.classList.add('d-none');
+        elements.erro.textContent = '';
+        elements.gerarBtn.disabled = true;
+        elements.gerarBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Gerando Pix...';
+
+        try {
+            const response = await fetch('/api/doacoes/pix', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: elements.nome.value.trim(),
+                    email: elements.email.value.trim(),
+                    valor: Number(elements.valor.value),
+                    mensagem: elements.mensagem.value.trim()
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Nao foi possivel gerar o Pix.');
+            }
+
+            elements.pixCode.value = data.qrCode || '';
+            elements.qrCode.src = `data:image/png;base64,${data.qrCodeBase64}`;
+
+            if (data.ticketUrl) {
+                elements.ticketUrl.href = data.ticketUrl;
+                elements.ticketUrl.classList.remove('d-none');
+            }
+
+            elements.dados.classList.add('d-none');
+            elements.resultado.classList.remove('d-none');
+        } catch (error) {
+            elements.erro.textContent = error.message;
+            elements.erro.classList.remove('d-none');
+        } finally {
+            elements.gerarBtn.disabled = false;
+            elements.gerarBtn.textContent = 'Gerar Pix';
+        }
+    });
+
+    const modal = document.getElementById('modalDoacaoPix');
+    modal.addEventListener('hidden.bs.modal', () => {
+        formDoacaoPix.reset();
+        elements.dados.classList.remove('d-none');
+        elements.resultado.classList.add('d-none');
+        elements.erro.classList.add('d-none');
+        elements.pixCode.value = '';
+        elements.qrCode.removeAttribute('src');
+        elements.ticketUrl.href = '#';
+        elements.ticketUrl.classList.add('d-none');
+    });
+});
+
 function topo(){
     window.scrollTo(
         {
@@ -206,9 +286,9 @@ function topo(){
 }
 
 function copiarPix() {
-    const input = document.getElementById('pixCode');
+    const input = document.getElementById('doacaoPixCode') || document.getElementById('pixCode');
     navigator.clipboard.writeText(input.value).then(() => {
-      const msg = document.getElementById('copiado');
+      const msg = document.getElementById('doacaoPixCopiado') || document.getElementById('copiado');
       msg.style.display = 'block';
       setTimeout(() => msg.style.display = 'none', 2500);
     });
