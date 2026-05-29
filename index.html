@@ -311,37 +311,39 @@
         </p>
       </div>
       <div class="col-12 col-lg-6 mx-auto">
-        <form method="post" action="subscribe.html"> <!-- Ajuste o action -->
+        <form id="newsletter-form" novalidate>
+          <div class="alert alert-success d-none" id="newsletter-success"></div>
+          <div class="alert alert-danger d-none" id="newsletter-error"></div>
           <div class="mb-3">
             <label for="name" class="form-label">
               <strong>Nome</strong>
             </label>
-            <input type="text" class="form-control shadow" id="name" aria-describedby="name">
+            <input type="text" name="name" class="form-control shadow" id="name" aria-describedby="name-error">
             <div class="error d-none" id="name-error">Nome obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="email" class="form-label">
               <strong class="fs-5">Email</strong>
             </label>
-            <input type="email" class="form-control shadow" id="email" aria-describedby="email">
+            <input type="email" name="email" class="form-control shadow" id="email" aria-describedby="email-error">
             <div class="error d-none" id="email-error">Email obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="telefone" class="form-label">
               <strong class="fs-5">Telefone</strong>
             </label>
-            <input type="tel" class="form-control shadow" id="telefone" aria-describedby="telefone">
+            <input type="tel" name="telefone" class="form-control shadow" id="telefone" aria-describedby="telefone-error">
             <div class="error d-none" id="telefone-error">Telefone obrigatório</div>
           </div>
           <div class="mb-3">
             <label for="data_nascimento" class="form-label">
               <strong class="fs-5">Data de Nascimento</strong>
             </label>
-            <input type="date" class="form-control shadow" id="data_nascimento" aria-describedby="data_nascimento">
-              <div class="error d-none" id="data_nascimento-error">Data de nascimento obrigatória</div>
+            <input type="date" name="data_nascimento" class="form-control shadow" id="data_nascimento" aria-describedby="data_nascimento-error">
+            <div class="error d-none" id="data_nascimento-error">Data de nascimento obrigatória</div>
           </div>
           <div class="mb-3 d-flex justify-content-center">
-            <button type="button" class="btn btn-light shadow" id="newsletter-btn">
+            <button type="submit" class="btn btn-light shadow" id="newsletter-btn">
               <strong class="fs-5">Inscrever-se</strong>
             </button>
           </div>

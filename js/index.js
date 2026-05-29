@@ -31,11 +31,14 @@ function logout() {
 }
 
 const form = {
+    newsletterForm: document.getElementById('newsletter-form'),
     name: document.getElementById('name'),
     email: document.getElementById('email'),
     telefone: document.getElementById('telefone'),
     data_nascimento: document.getElementById('data_nascimento'),
-    newsletterBtn: document.getElementById('newsletter-btn')
+    newsletterBtn: document.getElementById('newsletter-btn'),
+    errorMessage: document.getElementById('newsletter-error'),
+    successMessage: document.getElementById('newsletter-success')
 };
 
 // Validation messages
@@ -65,7 +68,29 @@ function clearError(input) {
         errorElement.classList.add('d-none');
     }
 }
+function showFormMessage(message, type = 'danger') {
+    if (!form.errorMessage || !form.successMessage) return;
 
+    form.errorMessage.classList.add('d-none');
+    form.successMessage.classList.add('d-none');
+    form.errorMessage.textContent = '';
+    form.successMessage.textContent = '';
+
+    const target = type === 'success' ? form.successMessage : form.errorMessage;
+    target.textContent = message;
+    target.classList.remove('d-none');
+}
+
+function clearFormMessages() {
+    if (form.errorMessage) {
+        form.errorMessage.classList.add('d-none');
+        form.errorMessage.textContent = '';
+    }
+    if (form.successMessage) {
+        form.successMessage.classList.add('d-none');
+        form.successMessage.textContent = '';
+    }
+}
 // Add input event listeners to show errors only after user types
 function setupInputValidation() {
     const fields = ['name', 'email', 'telefone', 'data_nascimento'];
@@ -152,42 +177,39 @@ async function registerForNewsletter(userData) {
 }
 
 
-if (form.newsletterBtn) {
-    form.newsletterBtn.addEventListener('click', async (e) => {
+if (form.newsletterForm) {
+    form.newsletterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+        clearFormMessages();
+
         if (!validateNewsletterForm()) {
+            showFormMessage('Verifique os campos obrigatórios e tente novamente.');
             return;
         }
-        
+
         const userData = {
             name: form.name.value.trim(),
             email: form.email.value.trim(),
             telefone: form.telefone.value.trim(),
             data_nascimento: form.data_nascimento.value
         };
-        
-        
+
         form.newsletterBtn.disabled = true;
         form.newsletterBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cadastrando...';
-        
+
         const result = await registerForNewsletter(userData);
-        
+
         if (result.success) {
-            alert('Cadastro realizado com sucesso! Você receberá nossas novidades.');
-           
-            form.name.value = '';
-            form.email.value = '';
-            form.telefone.value = '';
-            form.data_nascimento.value = '';
+            showFormMessage('Cadastro realizado com sucesso! Você receberá nossas novidades.', 'success');
+            form.newsletterForm.reset();
         } else if (result.error === 'Este email já está cadastrado!') {
-            // Show error on email field
             showError(form.email, result.error);
-            alert(result.error);
+            showFormMessage(result.error, 'danger');
         } else {
-            alert('Erro ao realizar cadastro. Tente novamente.');
+            console.error('Newsletter registration failed:', result.error);
+            showFormMessage(`Erro ao realizar cadastro. Tente novamente. (${result.error})`, 'danger');
         }
-        
+
         form.newsletterBtn.disabled = false;
         form.newsletterBtn.innerHTML = '<strong class="fs-5">Inscrever-se</strong>';
     });
