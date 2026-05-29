@@ -149,20 +149,7 @@ function validateNewsletterForm() {
 async function registerForNewsletter(userData) {
     try {
         const db = firebase.firestore();
-        
-        // Check if email already exists in leads collection
-        const existingLead = await db.collection('leads')
-            .where('email', '==', userData.email)
-            .get();
-        
-        if (!existingLead.empty) {
-            return { 
-                success: false, 
-                error: 'Este email já está cadastrado!' 
-            };
-        }
-        
-        // If email doesn't exist, create new lead
+
         await db.collection('leads').add({
             ...userData,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),

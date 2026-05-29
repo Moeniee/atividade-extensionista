@@ -3,3 +3,4 @@ serviceAccountKey.json
 firebase-service-account-base64.txt
 node_modules/
 .env.example
+firestore.rules
