@@ -89,8 +89,14 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
             }
         };
 
-        if (process.env.PUBLIC_BASE_URL) {
-            body.notification_url = `${process.env.PUBLIC_BASE_URL}/api/mercadopago/webhook`;
+        const rawBaseUrl = process.env.PUBLIC_BASE_URL?.trim() || `${req.get("x-forwarded-proto") || req.protocol}://${req.get("host")}`;
+        const publicBaseUrl = rawBaseUrl ? rawBaseUrl.replace(/\/+$/, "") : "";
+
+        if (publicBaseUrl) {
+            body.notification_url = `${publicBaseUrl}/api/mercadopago/webhook`;
+            console.log("Mercado Pago notification_url:", body.notification_url);
+        } else {
+            console.warn("PUBLIC_BASE_URL não definido e host não disponível. Webhook do Mercado Pago pode falhar.");
         }
 
         const mpResponse = await fetch(MERCADO_PAGO_API_URL, {
@@ -116,9 +122,18 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
             });
         }
 
+        const paymentStatus = payment.status === "approved" ? "ok" : payment.status || "pendente";
+
+        console.log("Mercado Pago create payment:", {
+            paymentId: payment.id,
+            paymentStatus: payment.status,
+            mappedStatus: paymentStatus,
+            externalReference: doacaoId
+        });
+
         await doacaoRef.update({
             transactionId: String(payment.id),
-            status: payment.status || "pendente"
+            status: paymentStatus
         });
 
         const transactionData = payment.point_of_interaction?.transaction_data || {};
@@ -126,7 +141,7 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
         return res.status(201).json({
             doacaoId,
             transactionId: String(payment.id),
-            status: payment.status,
+            status: paymentStatus,
             qrCode: transactionData.qr_code,
             qrCodeBase64: transactionData.qr_code_base64,
             ticketUrl: transactionData.ticket_url
@@ -167,12 +182,22 @@ app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) 
             return;
         }
 
+        const updatedStatus = payment.status === "approved" ? "ok" : payment.status;
+
+        console.log("Mercado Pago webhook update:", {
+            paymentId,
+            eventType,
+            paymentStatus: payment.status,
+            mappedStatus: updatedStatus,
+            doacaoId
+        });
+
         await db.collection("doacoes").doc(doacaoId).set({
             nome: payment.metadata?.nome || payment.payer?.first_name || "",
             valor: Number(payment.transaction_amount || 0),
             mensagem: payment.metadata?.mensagem || "",
             dataHora: FieldValue.serverTimestamp(),
-            status: payment.status === "approved" ? "pago" : payment.status,
+            status: updatedStatus,
             transactionId: String(payment.id),
             metodoPagamento: "pix"
         }, { merge: true });
