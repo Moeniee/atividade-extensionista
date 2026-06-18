@@ -166,6 +166,26 @@ app.post(["/api/doacoes/pix", "/doacoes/pix"], async (req, res) => {
     }
 });
 
+app.get(["/api/doacoes/pix/status", "/doacoes/pix/status"], async (req, res) => {
+    try {
+        const doacaoId = String(req.query.doacaoId || "").trim();
+        if (!doacaoId) {
+            return res.status(400).json({ error: "doacaoId é obrigatório." });
+        }
+
+        const doc = await db.collection('doacoes').doc(doacaoId).get();
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Doação não encontrada." });
+        }
+
+        const data = doc.data() || {};
+        return res.json({ status: data.status || 'pendente' });
+    } catch (error) {
+        console.error('Erro ao buscar status da doação:', error);
+        return res.status(500).json({ error: 'Erro interno ao buscar status da doação.' });
+    }
+});
+
 app.post(["/api/mercadopago/webhook", "/mercadopago/webhook"], async (req, res) => {
     try {
         const body = req.body || {};

@@ -167,37 +167,91 @@ function mostrarConfirmacaoDoacao() {
 }
 
 function acompanharStatusDoacao(doacaoId) {
-    if (!firebase || !firebase.firestore) {
+    if (!doacaoId) {
         return null;
     }
 
-    try {
-        const db = firebase.firestore();
-        const docRef = db.collection('doacoes').doc(doacaoId);
+    let intervalId = null;
+    let attempts = 0;
+    let failures = 0;
+    const maxAttempts = 40;
+    const maxFailuresBeforeError = 5;
+    const erroElemento = document.getElementById('erroDoacaoPix');
+    const aguardando = document.getElementById('doacaoPixAguardando');
 
-        return docRef.onSnapshot(doc => {
-            if (!doc.exists) {
-                return;
+    if (aguardando) {
+        aguardando.classList.remove('d-none');
+    }
+
+    async function checkStatus() {
+        attempts += 1;
+
+        try {
+            const response = await fetch(`/api/doacoes/pix/status?doacaoId=${encodeURIComponent(doacaoId)}`);
+            if (!response.ok) {
+                failures += 1;
+                if (response.status === 404) {
+                    // O documento pode não estar pronto ainda, continue tentando.
+                }
+            } else {
+                failures = 0;
+                const data = await response.json();
+                const status = String(data.status || '').toLowerCase();
+
+                if (status === 'ok') {
+                    if (aguardando) {
+                        aguardando.classList.add('d-none');
+                    }
+                    mostrarConfirmacaoDoacao();
+                    cleanupDoacaoListener();
+                    return;
+                }
+
+                if (status === 'failed' || status === 'erro') {
+                    if (aguardando) {
+                        aguardando.classList.add('d-none');
+                    }
+                    if (erroElemento) {
+                        erroElemento.textContent = 'Houve um problema com a doação. Verifique o pagamento ou tente novamente.';
+                        erroElemento.classList.remove('d-none');
+                    }
+                    cleanupDoacaoListener();
+                    return;
+                }
             }
 
-            const data = doc.data() || {};
-            const status = String(data.status || '').toLowerCase();
-
-            if (status === 'ok') {
-                mostrarConfirmacaoDoacao();
+            if (attempts >= maxAttempts) {
+                if (aguardando) {
+                    aguardando.classList.add('d-none');
+                }
+                if (erroElemento) {
+                    erroElemento.textContent = 'Não foi possível confirmar o pagamento do Pix. Tente novamente mais tarde.';
+                    erroElemento.classList.remove('d-none');
+                }
+                cleanupDoacaoListener();
             }
-        }, error => {
+        } catch (error) {
             console.error('Erro ao acompanhar status da doação:', error);
-            const erro = document.getElementById('erroDoacaoPix');
-            if (erro) {
-                erro.textContent = 'Não foi possível acompanhar o status da doação.';
-                erro.classList.remove('d-none');
+            failures += 1;
+            if (failures >= maxFailuresBeforeError && attempts >= 6) {
+                if (aguardando) {
+                    aguardando.classList.add('d-none');
+                }
+                if (erroElemento) {
+                    erroElemento.textContent = 'Não foi possível acompanhar o status da doação.';
+                    erroElemento.classList.remove('d-none');
+                }
+                cleanupDoacaoListener();
             }
-        });
-    } catch (error) {
-        console.error('Erro ao iniciar listener da doação:', error);
-        return null;
+        }
     }
+
+    intervalId = setInterval(checkStatus, 3000);
+    checkStatus();
+
+    return () => {
+        clearInterval(intervalId);
+    };
 }
 
 function cleanupDoacaoListener() {
