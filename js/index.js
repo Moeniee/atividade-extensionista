@@ -151,6 +151,63 @@ function createLeadId(email) {
     return btoa(normalized).replace(/\//g, '_').replace(/\+/g, '-').replace(/=+$/, '');
 }
 
+let currentDoacaoId = null;
+let unsubscribeDoacaoStatus = null;
+
+function mostrarConfirmacaoDoacao() {
+    const dados = document.getElementById('dadosDoacaoPix');
+    const resultado = document.getElementById('resultadoDoacaoPix');
+    const erro = document.getElementById('erroDoacaoPix');
+    const confirmacao = document.getElementById('confirmacaoDoacaoPix');
+
+    if (dados) dados.classList.add('d-none');
+    if (resultado) resultado.classList.add('d-none');
+    if (erro) erro.classList.add('d-none');
+    if (confirmacao) confirmacao.classList.remove('d-none');
+}
+
+function acompanharStatusDoacao(doacaoId) {
+    if (!firebase || !firebase.firestore) {
+        return null;
+    }
+
+    try {
+        const db = firebase.firestore();
+        const docRef = db.collection('doacoes').doc(doacaoId);
+
+        return docRef.onSnapshot(doc => {
+            if (!doc.exists) {
+                return;
+            }
+
+            const data = doc.data() || {};
+            const status = String(data.status || '').toLowerCase();
+
+            if (status === 'ok') {
+                mostrarConfirmacaoDoacao();
+            }
+        }, error => {
+            console.error('Erro ao acompanhar status da doação:', error);
+            const erro = document.getElementById('erroDoacaoPix');
+            if (erro) {
+                erro.textContent = 'Não foi possível acompanhar o status da doação.';
+                erro.classList.remove('d-none');
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao iniciar listener da doação:', error);
+        return null;
+    }
+}
+
+function cleanupDoacaoListener() {
+    if (typeof unsubscribeDoacaoStatus === 'function') {
+        unsubscribeDoacaoStatus();
+        unsubscribeDoacaoStatus = null;
+    }
+    currentDoacaoId = null;
+}
+
 async function registerForNewsletter(userData) {
     try {
         const db = firebase.firestore();
@@ -272,6 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             elements.dados.classList.add('d-none');
             elements.resultado.classList.remove('d-none');
+
+            cleanupDoacaoListener();
+            currentDoacaoId = data.doacaoId || null;
+            unsubscribeDoacaoStatus = data.doacaoId ? acompanharStatusDoacao(data.doacaoId) : null;
+
+            if (String(data.status || '').toLowerCase() === 'ok') {
+                mostrarConfirmacaoDoacao();
+            }
         } catch (error) {
             elements.erro.textContent = error.message;
             elements.erro.classList.remove('d-none');
@@ -284,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modalDoacaoPix');
     modal.addEventListener('hidden.bs.modal', () => {
         formDoacaoPix.reset();
+        cleanupDoacaoListener();
         elements.dados.classList.remove('d-none');
         elements.resultado.classList.add('d-none');
         elements.erro.classList.add('d-none');
@@ -291,6 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.qrCode.removeAttribute('src');
         elements.ticketUrl.href = '#';
         elements.ticketUrl.classList.add('d-none');
+        document.getElementById('confirmacaoDoacaoPix')?.classList.add('d-none');
     });
 });
 
