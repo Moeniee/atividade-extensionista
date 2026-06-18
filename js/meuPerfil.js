@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     profileFields.profileForm().addEventListener("submit", saveProfile);
     profileFields.editButton().addEventListener("click", enableEditMode);
     profileFields.cancelButton().addEventListener("click", cancelEdit);
-    profileFields.deleteButton().addEventListener("click", deleteProfile);
+    profileFields.deleteButton().addEventListener("click", toggleAccountStatus);
     setEditMode(false);
 });
 
@@ -97,6 +97,7 @@ async function loadProfile(user) {
             originalProfileData = createEmptyProfile(user);
             fillProfileForm(originalProfileData);
             profileLoaded = true;
+            updateAccountButton(originalProfileData.status);
             setStatus("Perfil ainda nao encontrado. Clique em Editar informacoes para cadastrar seus dados pessoais.", "warning");
             setEditMode(false);
             return;
@@ -108,7 +109,14 @@ async function loadProfile(user) {
         };
         fillProfileForm(originalProfileData);
         profileLoaded = true;
-        setStatus("Dados carregados. Clique em Editar informacoes para alterar.", "success");
+        updateAccountButton(originalProfileData.status);
+
+        if (originalProfileData.status === "disabled") {
+            setStatus("Conta desativada. Você pode reativá-la ou mantê-la desativada na página Meu Perfil.", "warning");
+        } else {
+            setStatus("Dados carregados. Clique em Editar informacoes para alterar.", "success");
+        }
+
         setEditMode(false);
     } catch (error) {
         console.error("Erro ao carregar perfil:", error);
@@ -138,7 +146,8 @@ function createEmptyProfile(user) {
         endereco: "",
         email: user.email || "",
         dataNasc: "",
-        notificacao: false
+        notificacao: false,
+        status: "active"
     };
 }
 
@@ -178,6 +187,7 @@ function getProfileData() {
         email: profileFields.email().value.trim(),
         dataNasc: profileFields.dataNasc().value.trim(),
         notificacao: notificacao ? notificacao.value === "sim" : false,
+        status: originalProfileData?.status || "active",
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 }
@@ -234,8 +244,12 @@ async function saveProfile(event) {
     }
 }
 
-async function deleteProfile() {
-    const confirmed = confirm("Tem certeza que deseja excluir sua conta? Essa acao nao podera ser desfeita.");
+async function toggleAccountStatus() {
+    const isDisabled = originalProfileData && originalProfileData.status === "disabled";
+    const confirmed = confirm(isDisabled
+        ? "Deseja reativar sua conta? A conta ficará ativa e você poderá usar o sistema normalmente."
+        : "Tem certeza que deseja desativar sua conta? Ela ficará inativa, mas poderá ser reativada depois.");
+
     if (!confirmed) {
         return;
     }
@@ -244,14 +258,24 @@ async function deleteProfile() {
     showLoading();
 
     try {
-        await db.collection("membro").doc(currentUser.uid).delete();
-        await currentUser.delete();
-        alert("Conta excluida com sucesso.");
-        window.location.href = "/index.html";
+        const newStatus = isDisabled ? "active" : "disabled";
+        await db.collection("membro").doc(currentUser.uid).set({
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        originalProfileData.status = newStatus;
+        updateAccountButton(newStatus);
+        setStatus(isDisabled
+            ? "Conta reativada com sucesso."
+            : "Conta desativada. Você pode reativá-la a qualquer momento em Meu Perfil.",
+            isDisabled ? "success" : "warning");
+        setEditMode(false);
     } catch (error) {
-        console.error("Erro ao excluir perfil:", error);
+        console.error("Erro ao atualizar status da conta:", error);
         setStatus(getProfileErrorMessage(error), "danger");
         setEditMode(false);
+    } finally {
         hideLoading();
     }
 }
@@ -291,6 +315,15 @@ function clearErrors() {
     document.querySelectorAll(".error").forEach(error => {
         error.style.display = "none";
     });
+}
+
+function updateAccountButton(status) {
+    const button = profileFields.deleteButton();
+    if (!button) {
+        return;
+    }
+
+    button.textContent = status === "disabled" ? "Ativar conta" : "Desativar conta";
 }
 
 function setStatus(message, type) {

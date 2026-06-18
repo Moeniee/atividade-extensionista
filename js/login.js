@@ -1,5 +1,8 @@
+const db = firebase.firestore();
+let isLoginInProgress = false;
+
 firebase.auth().onAuthStateChanged(user => {
-    if (user) {
+    if (user && !isLoginInProgress) {
         console.log('User is already logged in', user);
         window.location.href = "/index.html";
     }
@@ -15,19 +18,37 @@ function onChangePassword() {
     toggleButtonsDisable();
 } 
 
-function login(event) {
+async function login(event) {
     showLoading();
-  event.preventDefault();
-  firebase.auth().signInWithEmailAndPassword(form.email().value, form.password().value).then(response => {
-    hideLoading();
-    console.log('Login successful', response);
-    window.location.href = "/index.html";
-  }).catch(error => {
-    hideLoading();
-    console.log('Login error', error);
-    alert(getErrorMessage(error));
-  });
-  return false;
+    event.preventDefault();
+
+    try {
+        isLoginInProgress = true;
+        const response = await firebase.auth().signInWithEmailAndPassword(form.email().value, form.password().value);
+        console.log('Login successful', response);
+
+        const userId = response.user.uid;
+        const profileDoc = await db.collection('membro').doc(userId).get();
+        const profile = profileDoc.exists ? profileDoc.data() : null;
+
+        if (profile && profile.status === 'disabled') {
+            hideLoading();
+            alert('Sua conta está desativada. Você pode reativá-la em Meu Perfil.');
+            window.location.href = "/meuPerfil.html";
+            return false;
+        }
+
+        hideLoading();
+        window.location.href = "/index.html";
+    } catch (error) {
+        hideLoading();
+        console.log('Login error', error);
+        alert(getErrorMessage(error));
+    } finally {
+        isLoginInProgress = false;
+    }
+
+    return false;
 }
 
 function getErrorMessage(error) {

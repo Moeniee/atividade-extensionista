@@ -328,6 +328,7 @@ function cadastrar() {
             email: email,
             dataNasc: dataNasc,
             notificacao: notificacao,
+            status: "active",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
